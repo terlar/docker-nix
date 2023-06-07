@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    paths:
+      - "**/Dockerfile"
+      - ".github/workflows/ci.yml"
+
+  pull_request:
+    paths:
+      - "**/Dockerfile"
+      - ".github/workflows/ci.yml"
+jobs:
+  docker-image:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        version: ["2.16.1"]
+        variant: [ubuntu]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v4
+        with:
+          push: false
+          load: true
+          context: .
+          file: ./${{ matrix.variant }}/Dockerfile
+          build-args: |
+            NIX_VERSION=${{ matrix.version }}
+          tags: nix:${{ matrix.version }}-${{ matrix.variant }}
+
+      - name: Test for nix version
+        run: |
+          image_nix_version=$(docker run --rm nix:${{ matrix.version }}-${{ matrix.variant }} nix eval --raw --expr builtins.nixVersion)
+          echo "Expected: \"${{ matrix.version }}\", Got: \"${image_nix_version}\""
+          [ "${image_nix_version}" == "${{ matrix.version }}" ]
