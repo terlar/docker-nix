@@ -2,6 +2,8 @@ name: CI
 
 on:
   push:
+    branches-ignore:
+      - main
     paths:
       - "**/Dockerfile"
       - ".github/workflows/ci.yml"
@@ -22,8 +24,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Build image
-        uses: docker/build-push-action@v4
+      - name: Build Docker image
+        uses: docker/build-push-action@v4.0.0
         with:
           push: false
           load: true
