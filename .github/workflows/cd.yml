@@ -9,8 +9,7 @@ on:
       - ".github/workflows/cd.yml"
 
 env:
-  REGISTRY: ghcr.io
-  NAMESPACE: ${{ github.repository_owner }}
+  NAMESPACE: ${{ secrets.DOCKER_USERNAME }}
   IMAGE_NAME: nix
 
 jobs:
@@ -32,9 +31,8 @@ jobs:
 
       - uses: docker/login-action@v2.1.0
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4.0.0
@@ -44,16 +42,16 @@ jobs:
           file: ./${{ matrix.variant }}/Dockerfile
           build-args: |
             NIX_VERSION=${{ matrix.version }}
-          tags: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ matrix.version }}-${{ matrix.variant }}
+          tags: ${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ matrix.version }}-${{ matrix.variant }}
           labels: |
             org.opencontainers.image.authors=${{ github.repository_owner }}
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ matrix.version }}-${{ matrix.variant }}
+          cache-from: type=registry,ref=${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ matrix.version }}-${{ matrix.variant }}
           cache-to: type=inline
 
       - name: Test for nix version
         run: |
-          image_nix_version=$(docker run --rm ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ matrix.version }}-${{ matrix.variant }} nix eval --raw --expr builtins.nixVersion)
+          image_nix_version=$(docker run --rm ${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ matrix.version }}-${{ matrix.variant }} nix eval --raw --expr builtins.nixVersion)
           echo "Expected: \"${{ matrix.version }}\", Got: \"${image_nix_version}\""
           [ "${image_nix_version}" == "${{ matrix.version }}" ]
