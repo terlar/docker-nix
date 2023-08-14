@@ -1,5 +1,5 @@
 FROM ubuntu:latest
-ARG NIX_VERSION=2.16.1
+ARG NIX_VERSION=2.17.0
 RUN apt update -y \
     && apt install curl git -y \
     && curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install linux \
