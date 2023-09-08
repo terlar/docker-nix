@@ -1,6 +1,13 @@
 name: CI
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - "**/Dockerfile"
+      - ".github/workflows/cd.yml"
+
   pull_request:
     paths:
       - "**/Dockerfile"
@@ -11,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: ["2.16.1", "2.17.0"]
+        version: ["2.17.0"]
         variant: [ubuntu]
 
     steps:

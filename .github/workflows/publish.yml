@@ -1,19 +1,13 @@
-name: CD
+---
+name: Publish
 
 on:
   push:
-    branches:
-      - main
-    paths:
-      - "**/Dockerfile"
-      - ".github/workflows/cd.yml"
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE: ghcr.io/${{ github.repository_owner }}/nix
+    tags:
+      - "v*.*.*"
 
 jobs:
-  push-docker-image:
+  publish:
     runs-on: ubuntu-latest
 
     permissions:
@@ -23,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: ["2.16.1", "2.17.0"]
+        version: ["${{ github.ref_name }}"]
         variant: [ubuntu]
 
     steps:
