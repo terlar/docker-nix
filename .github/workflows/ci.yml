@@ -1,13 +1,6 @@
 name: CI
 
 on:
-  push:
-    branches-ignore:
-      - main
-    paths:
-      - "**/Dockerfile"
-      - ".github/workflows/ci.yml"
-
   pull_request:
     paths:
       - "**/Dockerfile"
